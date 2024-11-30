@@ -204,43 +204,15 @@ if __name__ == "__main__":
     llm.eval()
     
     
-    hallacation1_new='''
-    <s>[INST] Human: 
-    Context: #CONTEXT \n\n Sentence: #SENTENCE \n\n
-    Is the sentence supported by the context above? (a) major inaccurate (b) minor inaccurate (c) accurate.[/INST]\n\n
-    Assistant: The single most likely answer choice is
-    '''
-
-    # How is the sentence supported by the context above?
-    hallacation1_new='''
+    
+    hallacation1='''
     <s>[INST] Human: 
     #Context: #CONTEXT \n\n #Sentence: #SENTENCE \n\n
     Is the #sentence supported by the #context above? (a) accurate (b) inaccurate.[/INST]\n\n:
     Assistant: The single most likely answer is 
     '''
 
-    hallacation2_new='''
-    <s>[INST] Human: Evaluate your previous answer choice.  
-    If your previous answer is correct, please repeat your previous answer. 
-    If your previous answer is not correct, please correct your answer accordingly.[/INST]\n\n 
-    Assistant: After evaluating my previous answer choice, the single most likely answer choice is     
-    '''
-
-    hallacation2_new='''
-    [INST] Human: Evaluate your previous answer choice. 
-    If your previous answer is not correct, please correct and re-answer with (a) major inaccurate (b) minor inaccurate (c) accurate. 
-    If your previous answer is correct, please repeat the previous answer. [/INST]\n\n
-    Assistant: After evaluating my previous answer choice, the single most likely answer choice is     
-    '''
-
-    hallacation2_new='''
-    [INST] Human: carefully evaluate your previous answer choice. 
-    If your previous answer is not correct, correct it and re-answer accordingly. please be careful when changing your answer.
-    [/INST]\n\n
-    Assistant: After evaluating my previous answer choice, the single most likely answer choice is     
-    '''
-    
-    hallacation2_new='''
+    hallacation2='''
     [INST] Human: Review your previous answer. If you are very confident about your answer, maintain your answer. 
     Otherwise, update your answer with (a) accurate (b) inaccurate. [/INST]\n\n
     Assistant: After reviewing my previous answer, the single most likely answer is     
@@ -266,10 +238,9 @@ if __name__ == "__main__":
     '''
 
     prompts_dict = {
-        "vanilla": [hallacation1_new],
-        # "prev": [hallacation1_new, hallacation2_prev, hallacation3],
-        "new": [hallacation1_new, hallacation2_new],
-        "three": [hallacation1_new, hallacation2_new, hallacation2_new],
+        "vanilla": [hallacation1],
+        "new": [hallacation1, hallacation2],
+        "three": [hallacation1, hallacation2, hallacation2],
         "truth": [hallacation_groundtruth],
         "sys": [hallacation_sys]
     }
