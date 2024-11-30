@@ -74,27 +74,20 @@ def prompting_toxic(args, llm, tokenizer, prompting_list, maximal_tokens):
 
             model_outputs = llm.generate(inputs.input_ids.to('cuda'), max_new_tokens=maximal_tokens,
                                          pad_token_id=tokenizer.eos_token_id)
-            # 12
 
             prompt_length = inputs["input_ids"].shape[1]
             pure_answer = tokenizer.decode(model_outputs[0][prompt_length:], skip_special_tokens=True,
                                            clean_up_tokenization_spaces=False)
 
             answer = copy.deepcopy(pure_answer.strip())  # .split('\n')[0]
-            # response = copy.deepcopy(answer)
 
-            # single_answer = "\n\n".join([i for i in answer.split("\n") if i.strip() not in ["", "\n", " ", "\t"]][-2:])
 
-            # session = response_parsing(input,answer,round)
             history = history + "\n\n" + input.strip() + " " + answer + "</s>"
             print(answer.strip().split("\n")[0])
-            # scores, mean_score = run_perspective_api_new(answer)
-            # ipdb.set_trace()
             print("#ROUND#\t", round)
 
             round += 1
 
-    print()
 
 
 if __name__ == "__main__":

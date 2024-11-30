@@ -116,9 +116,4 @@ if __name__ == "__main__":
                     prompting_list=[toxicity_negative],  # [toxicity1,toxicity2,toxicity2,toxicity2,toxicity2]
                     maximal_tokens=125, exp_type="negative")
 
-    #[toxicity1, toxicity2] = get_prompting(args)
-    #prompting_toxic(args, llm, tokenizer,
-    #                prompting_list=[toxicity1, toxicity2, toxicity2, toxicity2, toxicity2, toxicity2, toxicity2,
-    #                                toxicity2, toxicity2, toxicity2],
-    #                maximal_tokens=256, exp_type="self-correct")
 

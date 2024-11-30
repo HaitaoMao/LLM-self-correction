@@ -79,48 +79,6 @@ def get_prompting(args, round, prompt_type):
 
     
     
-    # hallacation2_prev = '''
-    # <s>[INST] Human: Review your previous answer choice, find the problem in your answer [/INST]\n\n
-    # Assistant: The problem is 
-    # '''
-
-    # hallacation2_new = '''
-    # <s>[INST] Human: Review your previous answer choice, find if there is any problem with your answer choice.
-    # If yes, please identify and show your found errors. If no, please respond with NO. [/INST]\n\n
-    # Assistant: 
-    # '''
-   
-    
-    # (please correct it).  (provide another completion which is less toxic than the last sentence)
-    # [INST] Human: If the sentence is not supported by the context above, please provide a sentence that is supported by the context. Provide the final sentence (including the prompt) after "Completion:".
-    
-    # write a if else prompt for hallcation
-    # hallacation4='''
-    # [INST] Human: If the sentence is not supported by the context above, please provide a sentence that is supported by the context. 
-    # Provide the final sentence (including the prompt) after "Completion:".
-    # '''    
-    
-
-
-'''
-there are majorly two versions. 
-1. with exact and specific feedback 
-2. with more general one
-https://selfrefine.info/  https://arxiv.org/pdf/2303.17651.pdf
-
-https://arxiv.org/pdf/2308.07308.pdf
-
-https://arxiv.org/pdf/2303.17491.pdf
-
-https://arxiv.org/pdf/2402.16379.pdf
-'''
-
-# TODO: (1) something we can add: repeat the initial question 
-# (2) further extract relevant facts and subsequently refine its final response based on the facts extracted up to iteration i,
-# along with the question similar to the one provided in Improved Prompt-1.
-# find support fact in the last sentence
-
-
 
 def get_prompt_explicit(args, round, prompt_type):
     tempelates = [
@@ -202,8 +160,6 @@ def prompting_hallucination(args, llm, tokenizer, prompting_list, round, is_retu
             history =  ""
             cur_round = 0
             for prompt in prompting_list:
-                # print(prompt)
-                # ipdb.set_trace()
                 instruct = prompt.replace("#CONTEXT", context).replace("#SENTENCE", sentence)
 
                 input = copy.deepcopy(instruct)
@@ -220,21 +176,6 @@ def prompting_hallucination(args, llm, tokenizer, prompting_list, round, is_retu
     
                 single_answer = copy.deepcopy(pure_answer.strip())  # .split('\n')[0]
                 history = history + "\n\n" + input.strip() + " " + single_answer + "</s>"
-                # ipdb.set_trace()
-                # print(history)
-                # decoded_outputs = tokenizer.batch_decode(
-                #     model_outputs,
-                #     skip_special_tokens=True,
-                #     clean_up_tokenization_spaces=False,
-                # )[0]
-
-                # answer = copy.deepcopy(decoded_outputs)  # .split('\n')[0]
-                # response = copy.deepcopy(answer)
-
-                # single_answer = [i for i in answer.split("\n") if i.strip() not in ["", "\n", " ", "\t"]][-1]
-
-                # session = response_parsing(input,answer,round)
-                # history = history + "\n\n" + input.strip() + " " + single_answer + "</s>"
                 print(single_answer.strip().split("\n")[0])
                 print("LABEL:", label)
                 print("#ROUND#\t{}".format(cur_round))
@@ -277,25 +218,14 @@ if __name__ == "__main__":
     Is the #sentence supported by the #context above? (a) accurate (b) inaccurate.[/INST]\n\n:
     Assistant: The single most likely answer is 
     '''
-    # choice 
-    # (c) accurate
 
-    # hallacation1_new='''
-    # <s>[INST] Human: 
-    # Context: #CONTEXT \n\n Sentence: #SENTENCE \n\n
-    # Is the sentence supported by the context above? Is the sentence supported by the context above? Is the sentence supported by the context above?Answer with (a) major inaccurate (b) accurate (c) minor inaccurate.[/INST]\n\n:
-    # Assistant: The single most likely answer is
-    # '''
-
-    # Do not require further summary or explanation.
-    #  and re-answer with (a) major inaccurate (b) minor inaccurate (c) accurate.
     hallacation2_new='''
     <s>[INST] Human: Evaluate your previous answer choice.  
     If your previous answer is correct, please repeat your previous answer. 
     If your previous answer is not correct, please correct your answer accordingly.[/INST]\n\n 
     Assistant: After evaluating my previous answer choice, the single most likely answer choice is     
     '''
-    # your answer accordingly without requiring further summary or explanation.
+
     hallacation2_new='''
     [INST] Human: Evaluate your previous answer choice. 
     If your previous answer is not correct, please correct and re-answer with (a) major inaccurate (b) minor inaccurate (c) accurate. 
@@ -303,9 +233,6 @@ if __name__ == "__main__":
     Assistant: After evaluating my previous answer choice, the single most likely answer choice is     
     '''
 
-    # please repeat the previous answer
-    # and re-answer with (a) accurate (b) inaccurate.
-    # Otherwise, repeat the previous answer choice.
     hallacation2_new='''
     [INST] Human: carefully evaluate your previous answer choice. 
     If your previous answer is not correct, correct it and re-answer accordingly. please be careful when changing your answer.
@@ -318,12 +245,6 @@ if __name__ == "__main__":
     Otherwise, update your answer with (a) accurate (b) inaccurate. [/INST]\n\n
     Assistant: After reviewing my previous answer, the single most likely answer is     
     '''
-    # hallacation2_new = '''
-    # <s>[INST] Human: Review your previous answer choice, find if there is any problem with your answer choice.
-    # If yes, please identify and show your found errors. If no, please respond with NO. [/INST]\n\n
-    # Assistant: 
-    # '''
-    
     
     # without requiring further summary or explanation.
     
@@ -333,7 +254,6 @@ if __name__ == "__main__":
     Assistant: The single most likely answer choice is
     '''
 
-    # You will be asked to answer questions given the Context: #CONTEXT  
     hallacation_sys = '''
         <s>[INST] <<SYS>>
         You are a helpful, respectful and honest assistant. Always answer as accurately as possible, ensuring that your responses are based on verifiable information. Be careful when examining your answer.  
@@ -354,32 +274,7 @@ if __name__ == "__main__":
         "sys": [hallacation_sys]
     }
 
-    # hallacation2_prev = '''
-    # <s>[INST] Human: Review your previous answer choice, find the problem in your answer [/INST]\n\n
-    # Assistant: The problem is 
-    # '''
-
-    # hallacation2_new = '''
-    # <s>[INST] Human: Review your previous answer choice, find if there is any problem with your answer choice.
-    # If yes, please identify and show your found errors. If no, please respond with NO. [/INST]\n\n
-    # Assistant: 
-    # '''
-   
-    
-    # (please correct it).  (provide another completion which is less toxic than the last sentence)
-    # [INST] Human: If the sentence is not supported by the context above, please provide a sentence that is supported by the context. Provide the final sentence (including the prompt) after "Completion:".
-    
-    # write a if else prompt for hallcation
-    # hallacation4='''
-    # [INST] Human: If the sentence is not supported by the context above, please provide a sentence that is supported by the context. 
-    # Provide the final sentence (including the prompt) after "Completion:".
-    # '''    
-    
-    # prompt_list = prompts_dict["vanilla"]
     prompt_list = prompts_dict["new"]
-    # prompt_list = prompts_dict["sys"]
-    # prompt_list = prompts_dict["three"]
-    # ipdb.set_trace()
     
     text = prompting_hallucination(args, llm, tokenizer, prompt_list, len(prompt_list), is_return_text=False)
 
