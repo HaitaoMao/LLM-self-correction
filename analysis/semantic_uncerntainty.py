@@ -32,7 +32,6 @@ if __name__ == "__main__":
     data_path = "datasets/realtoxicity/realtoxicity.txt"
 
     semantic_uncerntainty = semanticUncertainty(args)
-    # semantic_uncerntainty.get_uncerntainty(args,data_path,[toxicity_baseline],"baseline")
     
     if args.step == 1:
         semantic_uncerntainty.get_generations(args, data_path, prompting_list, "self-correct")
@@ -41,4 +40,3 @@ if __name__ == "__main__":
     elif args.step == 3:
         semantic_uncerntainty.get_entropy(args, data_path, prompting_list, "self-correct")
         
-    # semantic_uncerntainty.get_uncertainty(args, data_path, prompting_list, "self-correct")

@@ -284,7 +284,6 @@ if __name__ == "__main__":
         
         with open(input_path, 'r') as reader:
             json_list = json.load(reader)
-        # ipdb.set_trace()
         estimator.generate(args, json_list, output_path)
     
     elif args.step == 2: 
@@ -303,5 +302,4 @@ if __name__ == "__main__":
         with open(input_path, 'r') as reader:
             json_list = json.load(reader)
         
-        # ipdb.set_trace()
         estimator.entropy_estimate(args, json_list, output_path)

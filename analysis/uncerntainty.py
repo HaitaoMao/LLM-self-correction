@@ -72,7 +72,6 @@ class ECEError:
                                                 return_tensors="pt").input_ids.to(device)
                     label_ids = self.tokenizer(copy.deepcopy(input) + " " + copy.deepcopy(choice),
                                                return_tensors="pt").input_ids
-                    # print(inputs_ids.shape,label_ids.shape)
                     prompt_ids = self.tokenizer(copy.deepcopy(input), return_tensors="pt").input_ids.to(device)
                     label_ids[:, :prompt_ids.shape[-1]] = -100
                     label_ids = label_ids.to(device)
@@ -186,7 +185,6 @@ class ECEError:
 
         # get bins
         min_conf, max_conf = min(confidence_list), max(confidence_list)
-        # print(min_conf,max_conf)
         interval = (max_conf - min_conf) / num_bins
         # print(interval)
         bins_list = [[] for i in range(num_bins)]
@@ -197,7 +195,7 @@ class ECEError:
                 logit_confidence = sample2predict[key][LOGITConfidence]
                 if logit_confidence >= interval_start and logit_confidence < interval_end:
                     bins_list[i].append(sample2predict[key])
-        # print(bins_list)
+
         ece_error = 0
         # get ece error
         for bins in bins_list:
@@ -225,9 +223,6 @@ class ECEError:
             first_choice = None
             for round, prompt in enumerate(prompts):
 
-                # if round not in sample2predict.keys():
-                #    sample2predict[round] = {}
-
                 instruct = copy.deepcopy(prompt)
 
                 input = instruct.replace("#CONTEXT", context) \
@@ -240,7 +235,6 @@ class ECEError:
                 inputs = copy.deepcopy(input)
                 inputs = self.tokenizer(inputs, return_tensors="pt")
                 max_tokens = 10
-                # if round == 1: max_tokens = 125
                 inputs_ids = self.tokenizer(copy.deepcopy(input),
                                             return_tensors="pt").input_ids.to(device)
                 model_outputs = self.model.generate(inputs_ids, max_new_tokens=max_tokens,
@@ -260,7 +254,6 @@ class ECEError:
                                                 return_tensors="pt").input_ids.to(device)
                     label_ids = self.tokenizer(copy.deepcopy(input) + " " + copy.deepcopy(choice),
                                                return_tensors="pt").input_ids
-                    # print(inputs_ids.shape,label_ids.shape)
                     prompt_ids = self.tokenizer(copy.deepcopy(input), return_tensors="pt").input_ids.to(device)
                     label_ids[:, :prompt_ids.shape[-1]] = -100
                     label_ids = label_ids.to(device)
@@ -280,10 +273,7 @@ class ECEError:
                     first_choice = predict_label
                     sample2predict[sample_idx].append(logit)
                 else:
-                    # round_logit.append((round_logit[0][0],predict2logit[round_logit[0][0]]))
                     sample2predict[sample_idx].append(predict2logit[first_choice])
-
-        #np.save("tmp.multiqa.selfcorrect", sample2predict)
 
         avg_logit = np.zeros((1, len(prompts)))
         for key in sample2predict.keys():
@@ -411,17 +401,15 @@ class semanticUncertainty:
                 unique_gens.append([pending[0]])
                 break
 
-        return unique_gens  # [key for key in similarity_dict.keys() if similarity_dict[key] is True]
+        return unique_gens  
 
     @torch.no_grad()
     def entropy_estimate_batch(self, args, input_text, unique_gens):
-        # print(unique_gens)
         negative_log_likelihood = 0
         for gens in unique_gens:
 
             class_avg_likelihood = 0
             for gen in gens:
-                # ipdb.set_trace()
                 prompt_ids = self.tokenizer(input_text, return_tensors="pt").input_ids.to(device)
                 input_ids = self.tokenizer(input_text + gen, return_tensors="pt").input_ids.to(device)
                 label_ids = self.tokenizer(input_text + gen, return_tensors="pt").input_ids.to(device)
@@ -442,9 +430,7 @@ class semanticUncertainty:
 
         with open(data_path, "r") as file_p:
             datas = file_p.readlines()
-            # datas = file_p.readlines()[:450]
         questions = [json.loads(x.strip())["prompt"]['text'] for x in datas]
-        # ipdb.set_trace()
         name = f"{exp_type}_result"
         save_path = f"/data/bochuan/selfcorrection/nips24selfcorrection/results/toxic_inter_uncertain/{name}.txt"
         if not is_load:
@@ -490,7 +476,6 @@ class semanticUncertainty:
                 prompting_results = self.generate(args, input_text)
 
                 prompting_results_list.append(prompting_results)
-                # ipdb.set_trace()
                 round += 1
 
             uncertainty_results["results"].append(prompting_results_list)
@@ -498,8 +483,6 @@ class semanticUncertainty:
             with open(save_path, "wb") as f:
                 pickle.dump(uncertainty_results, f)
 
-            # ipdb.set_trace()
-            # print()
 
     @torch.no_grad()
     def get_entropy(self, args, data_path, prompting_list, exp_type, is_load=True):
@@ -518,7 +501,6 @@ class semanticUncertainty:
         # num_samples, num_round
         uncertainty_results = uncertainty_results["results"]
         # num_samples, num_round, [PROMPTSTR, MOSTLIKELYGENSTR, SAMPLEDGENSTR]
-        # ipdb.set_trace()
 
         entropy_results = []
         if is_load:
@@ -544,21 +526,11 @@ class semanticUncertainty:
                 print_result = "EXPTYPE:{}\tROUND:{}\tENTROPY:{}".format(exp_type, round_idx, entropy)
                 single_entropy_results.append(entropy)
                 print(entropy)
-                # print(print_result)
-                # ipdb.set_trace()
             entropy_results.append(single_entropy_results)
             with open(save_path, "wb") as f:
                 pickle.dump(entropy_results, f)
 
-        '''    
-        for question in tqdm(questions):
-            
-            unique_gens = self.clustering(args, prompting_results)
-            entropy = self.entropy_estimate(args, input_text, unique_gens)
-
-            print("EXPTYPE:{}\tROUND:{}\tENTROPY:{}".format(exp_type, round, entropy))
-        '''
-
+        
     @torch.no_grad()
     def get_cluster(self, args, data_path, prompting_list, exp_type, is_load=True):
         name = f"{exp_type}_result"

@@ -113,6 +113,7 @@ if __name__ == "__main__":
 
     if args.cluster == "voodoo":
         os.system("export TRANSFORMERS_CACHE=/scratch0/liuguan5/pretrained_models/")
+    
     # print('into debiasing')
     tokenizer = AutoTokenizer.from_pretrained('openai-community/gpt2-xl')
     tokenizer.pad_token = tokenizer.eos_token
@@ -145,13 +146,11 @@ if __name__ == "__main__":
             filename="best-checkpoint",
             save_top_k=1,
             verbose=True,
-            # monitor="val_loss",
             mode="min")
-        # print("debiasing fine-tuning")
+
         trainer = pl.Trainer(max_epochs=args.epochs, devices=[0, 1, 2, 3, 4, 5, 6, 7], accelerator="gpu", strategy="ddp",
                              callbacks=[checkpoint_callback],
                              default_root_dir=args.save_path)
         trainer.fit(model, train_loader)
-        #print(checkpoint_callback.best_model_path, "88888888888888888888888888888888888")
         torch.save(model.causal.state_dict(),
                    f"{args.save_path}{args.debiasing_source}.{i}.ckpt")

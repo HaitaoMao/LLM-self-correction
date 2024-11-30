@@ -77,8 +77,6 @@ class semanticUncertainty:
             for json_data in tqdm(json_list, desc="generate"):
                 if int(json_data["round"]) > 5 and args.task == "toxicity":
                     continue
-                # if args.task == "bias" and int(json_data["round"]) > 2:
-                #    continue
                 generation_json_data = copy.deepcopy(json_data)
                 input_text = json_data["input"]
                 input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids.to(device)
@@ -98,10 +96,8 @@ class semanticUncertainty:
                     pure_answer = self.tokenizer.decode(generation[0][prompt_length:], skip_special_tokens=True,
                                                         clean_up_tokenization_spaces=False)
                     generation = ' '.join(copy.deepcopy(pure_answer.strip()).split('\n'))
-                    # print(generation)
                     all_generations.append(generation)
 
-                #all_generations = map(generate_map_func, [i for i in range(args.number_of_generations)])
                 generation_json_data[SAMPLEDGENSTR] = copy.deepcopy(all_generations)
                 certainty_json_list.append(generation_json_data)
             return certainty_json_list
@@ -111,7 +107,6 @@ class semanticUncertainty:
         with open(input_json_file, 'r') as reader:
             input_json_list = json.load(reader)
             for idx, json_data in tqdm(enumerate(input_json_list), desc="clustering"):
-                # print(json_data.keys())
                 pending = copy.deepcopy(json_data[SAMPLEDGENSTR])
                 unique_gens = []
                 while len(pending) > 0:
@@ -175,42 +170,6 @@ if __name__ == "__main__":
         args.max_new_tokens = 8
         args.max_length_clf = 8
     estimator = semanticUncertainty(args)
-
-    """
-    with open("experiments/realtoxicity/toxicity.baseline.sampling.json", 'w') as writer:
-        json_list = estimator.generate(args, "experiments/realtoxicity/babies/toxicity.baseline.archive.json")
-        json.dump(json_list, writer)
-
-    with open("experiments/realtoxicity/toxicity.negation.sampling.json", 'w') as writer:
-        json_list = estimator.generate(args, "experiments/realtoxicity/babies/toxicity.negation.archive.json")
-        json.dump(json_list, writer)
-    
-
-    with open("experiments/realtoxicity/toxicity.selfcorrect.sampling.json", 'w') as writer:
-        json_list = estimator.generate(args, "experiments/realtoxicity/babies/toxicity.selfcorrect.archive.json")
-        json.dump(json_list, writer)
-    """
-    """
-    for file in glob.glob("experiments/bias/babies/*selfcorrect.json"):
-        if args.bias_str not in file:
-            continue
-        print(file)
-        split_file_path = file.strip().split("/")
-        file_name = split_file_path[-1]
-        folder_path = "/".join(split_file_path[:2])
-        if not folder_path.endswith("/"):
-            folder_path += "/"
-
-        with open(folder_path+file_name.replace(".json", ".sampling.json"), "w") as writer:
-            json_list = estimator.generate(args, file)
-            json.dump(json_list, writer)
-    """
-
-
-    #if args.task == "toxicity":
-    #    json_data_list = estimator.clustering(args, "experiments/realtoxicity/toxicity.selfcorrect.sampling.json")
-    #    with open("experiments/realtoxicity/toxicity.selfcorrect.clustering.json", 'w') as writer:
-    #        json.dump(json_data_list, writer)
 
     if args.task == "toxicity":
         json_data_list = estimator.entropy_estimate(

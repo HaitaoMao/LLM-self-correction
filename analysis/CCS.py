@@ -18,13 +18,11 @@ class MLPProbe(nn.Module):
 class CCS(object):
     def __init__(self, x0, x1, nepochs=1000, ntries=10, lr=1e-3, batch_size=-1, 
                  verbose=False, device="cuda", linear=True, weight_decay=0.01, var_normalize=False):
-        # data
         self.var_normalize = var_normalize
         self.x0 = self.normalize(x0)
         self.x1 = self.normalize(x1)
         self.d = self.x0.shape[-1]
 
-        # training
         self.nepochs = nepochs
         self.ntries = ntries
         self.lr = lr
@@ -33,7 +31,6 @@ class CCS(object):
         self.batch_size = batch_size
         self.weight_decay = weight_decay
         
-        # probe
         self.linear = linear
         self.initialize_probe()
         self.best_probe = copy.deepcopy(self.probe)
@@ -138,7 +135,6 @@ class CCS(object):
 def infer(x0_test, x1_test, best_probe):
     def normalize(x):
         normalized_x = x - x.mean(axis=0, keepdims=True)
-        # if self.var_normalize:
         normalized_x /= normalized_x.std(axis=0, keepdims=True)
 
         return normalized_x

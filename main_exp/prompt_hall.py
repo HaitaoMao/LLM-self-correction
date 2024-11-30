@@ -191,10 +191,6 @@ if __name__ == "__main__":
     parser.add_argument("--instruct_type", type=str, default="level1",
                         choices=["level0", "level1", "ground-truth"])
     parser.add_argument("--question", type=str, default="")
-    #parser.add_argument("--llama2dir", type=str, default="/scratch0/liuguan5/llama/llama-2-7b-chat-hf/")
-    parser.add_argument("--context", type=str, default="")
-    parser.add_argument("--choices", type=str, default="")
-    parser.add_argument("--label", type=str, default="")
     parser.add_argument("--llm",type=str,default="mistral")
     parser.add_argument("--questions", type=str, default="datasets/BBQ/sexual_orientation.txt")
     parser.add_argument("--name_or_path",type=str,default="alignment-handbook/zephyr-7b-sft-full")#local_zephyr=/data/bochuan/DPO/cache/models--alignment-handbook--zephyr-7b-sft-full

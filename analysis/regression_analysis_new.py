@@ -9,7 +9,8 @@ from datasets import load_dataset
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import json
+import argparse
 import ipdb 
 import copy
 import pickle
@@ -29,7 +30,6 @@ def format_harm(text, is_harm):
     
     return text + answer
 
-    # "The following movie review expresses a " + ["negative", "positive"][label] + " sentiment:\n" + text
 
 @torch.no_grad()
 def get_hidden_states(model, tokenizer, input_text, layer=-1):
@@ -80,7 +80,6 @@ def get_all_hidden_states(model, tokenizer, datas, is_load=True):
         with open(data_path, "wb") as f:
             pickle.dump(probe_intermediate_dict, f)
         
-    # ipdb.set_trace()
     
     for idx, data in enumerate(datas):
         if data['round'] == 1:
@@ -111,18 +110,11 @@ def train_probe():
     neg_hs = np.array(hidden_dict["neg"])
     ys = np.array(hidden_dict["labels"])
     
-    # TODO: split train and test
-    
     ccs = CCS(neg_hs, pos_hs)
     ccs.repeated_train()
 
     torch.save(ccs.probe, probe_path)
 
-    return 
-    # TODO: do not evalute this time
-    ccs_acc = infer(neg_hs, pos_hs, ys, ccs.probe)
-    print("CCS accuracy: {}".format(ccs_acc))
-    
 
 @torch.no_grad()
 def probe_similarity(json_datas):
@@ -141,19 +133,15 @@ def probe_similarity(json_datas):
     for data in json_datas:
         max_round = max(max_round, data['round'])
     
-    # ipdb.set_trace()
     
     for idx, (pos_hidden, neg_hidden) in enumerate(zip(pos_hidden_states, neg_hidden_states)):
         round = idx % (max_round - 1) + 2
         pos_prob = infer(neg_hidden, pos_hidden, probe_network)
-        # TODO: here we use the sigmoid function for activation         
         neg_prob = 1 - pos_prob
         if round not in round2sim.keys():
             round2sim[round] = {}
             round2sim[round]['pos'], round2sim[round]['neg'] = [], []
         
-        # toxic_consin_sim = torch.nn.functional.cosine_similarity(input_hidden_states, toxicityProber)
-        # nontoxic_consin_sim = torch.nn.functional.cosine_similarity(input_hidden_states, nontoxicityProber)
         round2sim[round]['pos'].append(float(pos_prob.item()))
         round2sim[round]['neg'].append(float(neg_prob.item()))
 
@@ -165,11 +153,9 @@ def probe_similarity(json_datas):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--benchmark", type=str, default='advbench', choices=['wmt', 'bbq', 'realtoxicity'])
-    # parser.add_argument("--llama2dir", type=str, default="/scratch0/liuguan5/llama/llama-2-7b-chat-hf/")
     parser.add_argument("--context", type=str, default="")
     parser.add_argument("--choices", type=str, default="")
     parser.add_argument("--label", type=str, default="")
-    # /data/bochuan/selfcorrection/nips24selfcorrection/
     parser.add_argument("--questions", type=str, default="llm-self-defense/all_repsonses_llama.csv") # gpt llama
     parser.add_argument("--llm", type=str, default="mistral")  # llama3-70B
     parser.add_argument("--cluster", type=str, default="psu")  # llama3-70B
