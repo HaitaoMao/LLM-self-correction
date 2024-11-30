@@ -16,18 +16,7 @@ def extract_bbq(source_file, target_file):
             ans0, ans1, ans2, label = data['ans0'], data['ans1'], data['ans2'], str(data['label'])
             
             stereotyped_group = " ".join(data["additional_metadata"]['stereotyped_groups'])
-            """
-            if "Gender" in source_file:
-                new_group = []
-                for i in stereotyped_group:
-                    if i == "M":
-                        new_group.append("Male")
-                    elif i == "F":
-                        new_group.append("Female")
 
-                stereotyped_group.clear()
-                stereotyped_group = copy.deepcopy(new_group)
-            """
             if label == '0':
                 label = "(a)"
             elif label == '1':
@@ -39,7 +28,6 @@ def extract_bbq(source_file, target_file):
         writer.write("\n".join(lines))
 
 
-#extract_bbq("/Users/rayliu/Desktop/project/BBQ/data/Age.jsonl", 'data/bbq.age.txt')
 for file in glob.glob("/Users/rayliu/Desktop/project/BBQ/data/*.jsonl"):
     stereotypical_group = file.split("/")[-1].replace(".jsonl","").lower()
     extract_bbq(file,"BBQ/"+stereotypical_group+".txt")
@@ -48,7 +36,6 @@ for file in glob.glob("/Users/rayliu/Desktop/project/BBQ/data/*.jsonl"):
 def extract_wikibio(file):
     reader = open(file,'r')
     wikibios = json.load(reader)
-    #print(wikibios[0].keys())
     data_list = []
 
     for bio in wikibios[:200]:
@@ -64,17 +51,6 @@ def extract_wikibio(file):
 
 
             data_list.append(data_dict)
-    #a = json.dumps(data_list)
     with open("wikibio/wikibio_debug.json",'w') as target_file:
         json.dump(data_list,target_file)
-
-
-
-#extract_wikibio("wikibio/dataset_v3.json")
-"""
-with open("BBQ/bbq.debug.txt",'w') as writer:
-    writer.write("\n".join(random.sample([i.strip() for i in open("BBQ/sexual_orientation.txt")],200)))"""
-
-
-
 
